@@ -1,6 +1,5 @@
 name: Build APK
 
-# Dispara ao enviar codigo (push) ou manualmente pelo botao "Run workflow"
 on:
   push:
     branches: [ main, master ]
@@ -8,18 +7,28 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Baixar o codigo
         uses: actions/checkout@v4
 
-      - name: Gerar APK com Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
-        id: buildozer
+      - name: Configurar Python
+        uses: actions/setup-python@v5
         with:
-          command: buildozer android debug
-          workdir: .
-          buildozer_version: stable
+          python-version: '3.11'
+
+      - name: Instalar dependencias do sistema
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip \
+            autoconf libtool pkg-config zlib1g-dev libncurses5-dev \
+            libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev \
+            build-essential ccache libltdl-dev
+          pip install --upgrade pip
+          pip install buildozer cython==0.29.36
+
+      - name: Gerar o APK
+        run: buildozer android debug
 
       - name: Publicar o APK como artefato
         uses: actions/upload-artifact@v4
