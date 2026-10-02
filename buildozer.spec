@@ -1,3 +1,4 @@
+
 [app]
 
 title = Simulador CNC
@@ -21,16 +22,14 @@ warn_on_root = 1
 
 [app:android]
 
-# API alvo e minima
 android.api = 33
 android.minapi = 23
 
-# IMPORTANTE: fixar o build-tools 33.0.2, que ainda possui o 'aidl'.
-# As versoes 34+ removeram o aidl e quebram o Buildozer.
-android.build_tools = 33.0.2
+# Usa o SDK que ja preparamos no workflow (com build-tools 33.0.2 que tem o aidl)
+android.sdk_path = /home/runner/android-sdk
 
-# Arquiteturas suportadas
+# NAO deixar o Buildozer atualizar/instalar build-tools novo (que quebra o aidl)
+android.skip_update = True
+
 android.archs = arm64-v8a,armeabi-v7a
-
-# Aceita a licenca do SDK automaticamente
 android.accept_sdk_license = True
