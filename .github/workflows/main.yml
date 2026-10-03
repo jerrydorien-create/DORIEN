@@ -41,6 +41,9 @@ jobs:
           mv /tmp/cmdline-tools "$SDK/cmdline-tools/latest"
           yes | "$SDK/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$SDK" --licenses >/dev/null || true
           "$SDK/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$SDK" "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+          mkdir -p "$SDK/tools/bin"
+          ln -sf "$SDK/cmdline-tools/latest/bin/sdkmanager" "$SDK/tools/bin/sdkmanager"
+          ln -sf "$SDK/cmdline-tools/latest/bin/avdmanager" "$SDK/tools/bin/avdmanager"
           echo "--- Verificando o aidl (deve aparecer uma linha abaixo) ---"
           ls -la "$SDK/build-tools/33.0.2" | grep -i aidl || true
 
