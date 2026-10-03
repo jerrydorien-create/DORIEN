@@ -8,10 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    env:
-      ANDROID_HOME: $HOME/.buildozer/android/platform/android-sdk
-      ANDROID_SDK_ROOT: $HOME/.buildozer/android/platform/android-sdk
-
     steps:
       - name: Baixar o codigo
         uses: actions/checkout@v4
@@ -35,37 +31,18 @@ jobs:
             libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev \
             build-essential ccache libltdl-dev wget
 
-      - name: Preparar o Android SDK
+      - name: Preparar o Android SDK no local que o Buildozer usa (build-tools 33.0.2 tem o aidl)
         run: |
-          SDK="$HOME/.buildozer/android/platform/android-sdk"
-          mkdir -p "$SDK"
-          cd "$SDK"
-
-          # Baixar CLI tools do Android
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O tools.zip
-          unzip -q tools.zip
-
-          # Estrutura correta esperada pelo Buildozer
-          mkdir -p "$SDK/cmdline-tools/latest"
-
-          # Mover SOMENTE os arquivos internos, não a pasta cmdline-tools inteira
-          shopt -s dotglob
-          mv "$SDK/cmdline-tools"/* "$SDK/cmdline-tools/latest"/
-          shopt -u dotglob
-
-          # Criar compatibilidade com o path esperado pelo buildozer
-          mkdir -p "$SDK/tools/bin"
-          ln -sf "$SDK/cmdline-tools/latest/bin/sdkmanager" "$SDK/tools/bin/sdkmanager"
-          ln -sf "$SDK/cmdline-tools/latest/bin/avdmanager" "$SDK/tools/bin/avdmanager"
-
-          # Aceitar licenças
-          yes | "$SDK/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$SDK" --licenses >/dev/null 2>&1 || true
-
-          # Instalar SDKs necessários
-          "$SDK/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$SDK" \
-            "platform-tools" \
-            "platforms;android-33" \
-            "build-tools;33.0.2"
+          export SDK="$HOME/.buildozer/android/platform/android-sdk"
+          mkdir -p "$SDK/cmdline-tools"
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdtools.zip
+          rm -rf /tmp/cmdline-tools "$SDK/cmdline-tools/latest"
+          unzip -q /tmp/cmdtools.zip -d /tmp
+          mv /tmp/cmdline-tools "$SDK/cmdline-tools/latest"
+          yes | "$SDK/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$SDK" --licenses >/dev/null || true
+          "$SDK/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$SDK" "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+          echo "--- Verificando o aidl (deve aparecer uma linha abaixo) ---"
+          ls -la "$SDK/build-tools/33.0.2" | grep -i aidl || true
 
       - name: Instalar Buildozer
         run: |
