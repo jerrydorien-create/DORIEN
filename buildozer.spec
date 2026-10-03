@@ -24,9 +24,7 @@ warn_on_root = 1
 
 android.api = 33
 android.minapi = 23
-android.sdk_path = /home/runner/android-sdk
+android.sdk_path = /home/runner/.buildozer/android/platform/android-sdk
 android.skip_update = True
 android.archs = arm64-v8a,armeabi-v7a
 android.accept_sdk_license = True
-android.sdk_path = /home/runner/android-sdk
-android.skip_update = True
